@@ -27,4 +27,9 @@ public class ProjectService {
             throw new ProjectIdException("Project ID '"+projectIdentifier.toUpperCase()+"' does not exist");
         return project;
     }
+
+    public Iterable<Project> findAllProject(){
+        Iterable<Project> projects = projectRepository.findAll();
+        return projects;
+    }
 }
