@@ -2,6 +2,7 @@ package org.amk.ppmtool.web;
 
 import org.amk.ppmtool.domain.Project;
 import org.amk.ppmtool.service.ProjectService;
+import org.amk.ppmtool.service.ValidationErrorService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,16 +23,14 @@ import java.util.Map;
 public class ProjectController {
     @Autowired
     private ProjectService projectService;
+    @Autowired
+    private ValidationErrorService validationErrorService;
 
     @PostMapping
     public ResponseEntity<?> createNewProject(@Valid @RequestBody Project project, BindingResult result){
-        if(result.hasErrors()){
-            Map<String, String> errorMap = new HashMap<>();
-            result.getFieldErrors().forEach(fieldError -> {
-                errorMap.put(fieldError.getField(),fieldError.getDefaultMessage());
-            });
-            return new ResponseEntity<Map<String, String>>(errorMap,HttpStatus.BAD_REQUEST);
-        }
+        ResponseEntity<?> errorMap = validationErrorService.mapValidationService(result);
+        if(errorMap!=null) 
+            return errorMap;
         Project project1 = projectService.saveOrUpdateProject(project);
         return new ResponseEntity<Project>(project1, HttpStatus.CREATED);
     }
